@@ -9,21 +9,54 @@
 import SwiftUI
 
 struct ContentView: View {
-    var caravans: [Caravan] = []
+    @ObservedObject var store = AssetStore()
     
     var body: some View {
         NavigationView {
-            List(caravans) { caravan in
-                CaravanCell(caravan: caravan)
+            List {
+                Section {
+                    Button(action: addAsset) {
+                              Text("Add Asset")
+                    }
+                }
+                
+                Section {
+                    ForEach(store.assets) { caravan in
+                        CaravanCell(caravan: caravan)
+                    }
+                .onDelete(perform: delete)
+                .onMove(perform: move)
+                }
             }
             .navigationBarTitle(Text("Wohnmobile"))
+            .navigationBarItems(trailing: EditButton())
+            .listStyle(GroupedListStyle())
+             
         }
+       
+    }
+    
+    func addAsset() {
+        store.assets.append(Caravan(name: "e.GO Kart 2", imageName: "egokartThumb", status: "not available"))
+    }
+    
+    func delete(at offsets: IndexSet) {
+        store.assets.remove(atOffsets: offsets)
+    }
+    
+    func move(from source: IndexSet, to destination: Int ) {
+        store.assets.move(fromOffsets: source, toOffset: destination)
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(caravans: testData)
+        Group {
+            ContentView(store: AssetStore(assets: testData))
+            
+            ContentView(store: AssetStore(assets: testData))
+                .environment(\.colorScheme, .dark)
+        }
     }
 }
 
@@ -34,7 +67,12 @@ struct CaravanCell: View {
             Image(caravan.imageName)
                 .cornerRadius(8)
     
-            Text(caravan.name)
+            VStack(alignment: .leading) {
+                Text(caravan.name)
+                Text(caravan.status)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
         }
     }
 }
