@@ -21,8 +21,8 @@ struct ContentView: View {
                 }
                 
                 Section {
-                    ForEach(store.assets) { caravan in
-                        CaravanCell(caravan: caravan)
+                    ForEach(store.assets) { asset in
+                        AssetCell(asset: asset)
                     }
                 .onDelete(perform: delete)
                 .onMove(perform: move)
@@ -37,17 +37,37 @@ struct ContentView: View {
     }
     
     func addAsset() {
-        store.assets.append(Caravan(name: "e.GO Kart 2", imageName: "egokartThumb", status: "not available"))
+        store.insertAsset(name: "e.GO Kart 4", imageName: "egokartThumb", status: "not available")
     }
     
     func delete(at offsets: IndexSet) {
-        store.assets.remove(atOffsets: offsets)
+        store.deleteAssets(atOffsets: offsets)
     }
     
     func move(from source: IndexSet, to destination: Int ) {
         store.assets.move(fromOffsets: source, toOffset: destination)
     }
 }
+
+
+
+struct AssetCell: View {
+    let asset: Asset
+    var body: some View {
+        return NavigationLink(destination: Text(asset.name ?? "")) {
+            Image(asset.imageName ?? "")
+                .cornerRadius(8)
+    
+            VStack(alignment: .leading) {
+                Text(asset.name ?? "")
+                Text(asset.status ?? "")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+}
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
@@ -56,23 +76,6 @@ struct ContentView_Previews: PreviewProvider {
             
             ContentView(store: AssetStore(assets: testData))
                 .environment(\.colorScheme, .dark)
-        }
-    }
-}
-
-struct CaravanCell: View {
-    let caravan: Caravan
-    var body: some View {
-        return NavigationLink(destination: Text(caravan.name)) {
-            Image(caravan.imageName)
-                .cornerRadius(8)
-    
-            VStack(alignment: .leading) {
-                Text(caravan.name)
-                Text(caravan.status)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
         }
     }
 }
